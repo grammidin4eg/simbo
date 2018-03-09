@@ -9,13 +9,20 @@ header('Content-Type: application/json');
 
 $json = file_get_contents('php://input');
 $obj = json_decode($json);
-echo $obj;
-/*$simbo = new Simbo($servername, $username, $password);
+//echo json_encode($obj);
+$simbo = new Simbo($servername, $username, $password, $dbname);
 if($simbo->isConError()) {
    echo $simbo->getConError();
 } else {
-   $object = new SimboObject($simbo, 'TEST', '');
-   $res = $object->AddRow(array('field1' => 'value1', 'field2' => 'value2', 'field3' => 'value3'));
+   $object = new SimboObject($simbo, $obj->OBJ, '');
+   if( $obj->MET == 'Add' ) {
+      $params = $obj->PARAMS;
+      $res = $object->AddRow(array('field1' => $params[0], 'field2' => $params[1], 'field3' => $params[2]));
+   }
+   if( $obj->MET == 'List' ) {
+      $res = $object->GetList();
+   }
+   echo $res;
 }
-echo $res;*/
+
 ?>
