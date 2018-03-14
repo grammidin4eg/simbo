@@ -30,8 +30,15 @@
 
       }
 
-      public function GetList($arg) {
-
+      public function GetList($colArray) {
+         $columns = '';
+         $first = '';
+         foreach ($colArray as $value) {
+            $columns = $columns . $first . $value;
+            $first = ',';
+         }
+         $sql = "SELECT " . $columns . " FROM " . $this->tableName;
+         return $this->so->QueryGet($sql, $colArray);
       }
 
       public function SetData($arg) {
@@ -63,13 +70,29 @@
          return $this->Error('connection', $this->conn->connect_error);
       }
 
-      public function Query($sql)
-      {
+      public function Query($sql) {
          if ($this->conn->query($sql) === TRUE) {
             return $this->OK();
          } else {
             $err = "Error: " . $sql . ";" . $this->conn->error;
             return $this->Error($sql, $err);
+         }
+      }
+
+      public function QueryGet($sql, $columns) {
+         $result = $this->conn->query($sql);
+         $dataArr = array();
+         if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+               $dataRowArr = array();
+               foreach ($columns as $column) {
+                  array_push($dataRowArr, $row[$column]);
+               }
+               array_push($dataArr, $dataRowArr);
+            }
+            return $this->Result('OK', array('COUNT' => $result->num_rows, 'LIST' => $dataArr ), 'NOERROR');
+         } else {
+            return $this->Result('OK', array('COUNT' => 0, 'LIST' => array() ), 'NOERROR');
          }
       }
 

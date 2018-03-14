@@ -37,6 +37,7 @@ window.onload = function() {
    document.getElementById('AddBtn').onclick = function() {
       var text = document.getElementById('AddText').value;
       simbo('Add', [(new Date()).toLocaleDateString(), text, 'param3'], function() {
+         console.log('refresh after add');
          refreshList();
       });
    }

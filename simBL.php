@@ -20,7 +20,7 @@ if($simbo->isConError()) {
       $res = $object->AddRow(array('field1' => $params[0], 'field2' => $params[1], 'field3' => $params[2]));
    }
    if( $obj->MET == 'List' ) {
-      $res = $object->GetList();
+      $res = $object->GetList(array('id', 'field1', 'field2', 'field3'));
    }
    echo $res;
 }
