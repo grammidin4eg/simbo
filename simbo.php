@@ -26,27 +26,41 @@
          return $this->so->Query($sql);
       }
 
-      public function DelRow($arg) {
-
+      public function DelRow($id) {
+         $sql = "DELETE FROM ".$this->tableName." WHERE id=" . $id;
+         return $this->so->Query($sql);
       }
 
-      public function GetList($colArray) {
+      public function GetList($colArray, $where, $limit, $offset) {
          $columns = '';
          $first = '';
          foreach ($colArray as $value) {
             $columns = $columns . $first . $value;
             $first = ',';
          }
-         $sql = "SELECT " . $columns . " FROM " . $this->tableName;
+         if( $limit ) {
+            $limit = ' LIMIT ' . $limit;
+         }
+         if( $offset ) {
+            $offset = ' LIMIT ' . $offset;
+         }
+         $sql = "SELECT " . $columns . " FROM " . $this->tableName . " " . $where . $limit . $offset;
          return $this->so->QueryGet($sql, $colArray);
       }
 
-      public function SetData($arg) {
-
+      public function SetData($id, $setArray) {
+         $columns = '';
+         $first = '';
+         foreach ($setArray as $key => $value) {
+            $columns = $columns . $first . $key . "='" . $value . "'";
+            $first = ', ';
+         }
+         $sql = "UPDATE ".$this->tableName." SET ".$columns." WHERE id=".$id;
+         return $this->so->Query($sql);
       }
 
-      public function GetData($arg) {
-
+      public function GetData($colArray, $id) {
+         $this->GetList($colArray, ('id = '.$id), null, null);
       }
    }
 
@@ -72,7 +86,11 @@
 
       public function Query($sql) {
          if ($this->conn->query($sql) === TRUE) {
-            return $this->OK();
+            $data = 'NODATA';
+            if( $this->conn->insert_id ) {
+               $data = array('INSERT_ID' => $this->conn->insert_id);
+            }
+            return $this->OK($data);
          } else {
             $err = "Error: " . $sql . ";" . $this->conn->error;
             return $this->Error($sql, $err);
@@ -82,7 +100,7 @@
       public function QueryGet($sql, $columns) {
          $result = $this->conn->query($sql);
          $dataArr = array();
-         if ($result->num_rows > 0) {
+         if ($result && ($result->num_rows > 0)) {
             while($row = $result->fetch_assoc()) {
                $dataRowArr = array();
                foreach ($columns as $column) {
@@ -96,8 +114,8 @@
          }
       }
 
-      private function OK() {
-         return $this->Result('OK', 'NODATA', 'NOERROR');
+      private function OK($data) {
+         return $this->Result('OK', $data, 'NOERROR');
       }
 
       private function Error($sql, $error) {

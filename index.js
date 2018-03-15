@@ -5,7 +5,7 @@ window.onload = function() {
          'MET': method,
          'PARAMS': params
       };
-      console.log('simbo', data);
+      console.log('[REQUEST]', data);
       var xhr = new XMLHttpRequest();
       xhr.open('POST', 'simBL.php', true);
       xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -16,21 +16,28 @@ window.onload = function() {
       xhr.onreadystatechange = function() {
          if (xhr.readyState != 4) return;
 
-         console.log('onreadystatechange', 'status', xhr.status, 'statusText', xhr.statusText, 'responseText', xhr.responseText);
-         console.log('RESULT', JSON.parse(xhr.responseText));
+         console.log('[onreadystatechange]', 'status', xhr.status, 'statusText', xhr.statusText, 'responseText', xhr.responseText);
+         console.log('[RESULT]', JSON.parse(xhr.responseText));
+
+         var res = new BLRes(JSON.parse(xhr.responseText), ['id', 'field1', 'field2', 'field3']);
+
+         if( callbackm ) {
+            callbackm(res);
+         }
 
          //if (xhr.status != 200)
       }
 
-      if( callbackm ) {
-         callbackm(JSON.parse(xhr.responseText));
-      }
    }
 
    function refreshList() {
       simbo('List', '', function(list) {
-         console.log('list', list);
-         //render list
+         console.log('list', list.getList());
+         var firstId = list.at(0).get('id');
+         console.log('firstId', firstId);
+         simbo('Get', [firstId], function(getObj) {
+            console.log('getObj', getObj);
+         });
       });
    }
 
