@@ -7,9 +7,11 @@ function BLRes(result, columns) {
    this.list = [];
    if( result.DATA !== 'NODATA' ) {
       this.count = result.DATA.COUNT;
-      for(var i = 0;i < result.DATA.LIST.length; i++) {
-         var cur = result.DATA.LIST[i];
-         this.list.push(new BLRec(cur, this.cols));
+      if( result.DATA.LIST ) {
+         for(var i = 0;i < result.DATA.LIST.length; i++) {
+            var cur = result.DATA.LIST[i];
+            this.list.push(new BLRec(cur, this.cols));
+         }
       }
    }
 }

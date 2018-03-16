@@ -27,7 +27,7 @@ if($simbo->isConError()) {
       $res = $object->GetData($id);
    }
    if( $obj->MET == 'Set' ) {
-      $res = $object->SetData($id, array('field1' => $params[1], 'field2' => $params[2]));
+      $res = $object->SetData($id, array('field1' => $params[0], 'field2' => $params[1]));
    }
    if( $obj->MET == 'Del' ) {
       $res = $object->DelRow($id);

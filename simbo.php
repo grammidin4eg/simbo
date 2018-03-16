@@ -32,7 +32,7 @@
       }
 
       public function GetListSimple($where) {
-          $this->GetList($where, 100, 0);
+          return $this->GetList($where, 100, 0, $this->fieldList);
       }
 
       public function GetList($where, $limit, $offset, $colArray) {
@@ -51,11 +51,10 @@
          if( $offset ) {
             $offset = ' LIMIT ' . $offset;
          }
-         $sql = "SELECT " . $columns . " FROM " . $this->tableName . " " . $where . $limit . $offset;
-         //для отладки, удалить
-         if( !$limit ) {
-            $this->so->OK($sql);
+         if( $where ) {
+            $where = 'WHERE ' . $where;
          }
+         $sql = "SELECT " . $columns . " FROM " . $this->tableName . " " . $where . $limit . $offset;
          return $this->so->QueryGet($sql, $colArray);
       }
 
@@ -70,8 +69,8 @@
          return $this->so->Query($sql);
       }
 
-      public function GetData($id, $colArray) {
-         $this->GetList(('id = '.$id), 1, 0, $colArray);
+      public function GetData($id) {
+         return $this->GetList(('id = '.$id), 1, 0, $this->fieldList);
       }
    }
 
@@ -119,9 +118,9 @@
                }
                array_push($dataArr, $dataRowArr);
             }
-            return $this->Result('OK', array('COUNT' => $result->num_rows, 'LIST' => $dataArr ), 'NOERROR');
+            return $this->Result('OK', array('SQL' => $sql, 'COUNT' => $result->num_rows, 'LIST' => $dataArr ), 'NOERROR');
          } else {
-            return $this->Result('OK', array('COUNT' => 0, 'LIST' => array() ), 'NOERROR');
+            return $this->Result('OK', array('SQL' => $sql, 'COUNT' => 0, 'LIST' => array() ), 'NOERROR');
          }
       }
 
