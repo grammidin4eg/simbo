@@ -72,6 +72,11 @@
       public function GetData($id) {
          return $this->GetList(('id = '.$id), 1, 0, $this->fieldList);
       }
+
+      public function _findRec($where) {
+         $sql = "SELECT " . $this->fieldList . " FROM " . $this->tableName . " WHERE " . $where;
+         return $this->so->conn->query($sql);
+      }
    }
 
    class Simbo {
@@ -102,8 +107,8 @@
             }
             return $this->OK($data);
          } else {
-            $err = "Error: " . $sql . ";" . $this->conn->error;
-            return $this->Error($sql, $err);
+            $err = $this->conn->error;
+            return $this->Error('Query', $err);
          }
       }
 
@@ -118,9 +123,9 @@
                }
                array_push($dataArr, $dataRowArr);
             }
-            return $this->Result('OK', array('SQL' => $sql, 'COUNT' => $result->num_rows, 'LIST' => $dataArr ), 'NOERROR');
+            return $this->Result('OK', array('COUNT' => $result->num_rows, 'LIST' => $dataArr ), 'NOERROR');
          } else {
-            return $this->Result('OK', array('SQL' => $sql, 'COUNT' => 0, 'LIST' => array() ), 'NOERROR');
+            return $this->Result('OK', array('COUNT' => 0, 'LIST' => array() ), 'NOERROR');
          }
       }
 
@@ -128,9 +133,8 @@
          return $this->Result('OK', $data, 'NOERROR');
       }
 
-      private function Error($sql, $error) {
-         $err = "Error: " . $sql . ";" . $error;
-         return $this->Result('ERROR', 'NODATA', $err);
+      private function Error($code, $error) {
+         return $this->Result('ERROR', $code, $error);
       }
 
       private function Result($result, $data, $error)
