@@ -11,6 +11,10 @@
          $this->fieldList = $fields;
       }
 
+      public function getSimboObject() {
+         return $this->so;
+      }
+
       public function AddRow($insArray) {
          $columns = '(';
          $colValues = '(';
@@ -35,7 +39,7 @@
           return $this->GetList($where, 100, 0, $this->fieldList);
       }
 
-      public function GetList($where, $limit, $offset, $colArray) {
+      public function GetFieldListStr($colArray) {
          $columns = '';
          $first = '';
          if(!$colArray) {
@@ -45,6 +49,11 @@
             $columns = $columns . $first . $value;
             $first = ',';
          }
+         return $columns;
+      }
+
+      public function GetList($where, $limit, $offset, $colArray) {
+         $columns = $this->GetFieldListStr($colArray);
          if( $limit ) {
             $limit = ' LIMIT ' . $limit;
          }
@@ -74,8 +83,9 @@
       }
 
       public function _findRec($where) {
-         $sql = "SELECT " . $this->fieldList . " FROM " . $this->tableName . " WHERE " . $where;
-         return $this->so->conn->query($sql);
+         $columns = $this->GetFieldListStr(null);
+         $sql = "SELECT " . $columns . " FROM " . $this->tableName . " WHERE " . $where;
+         return $this->so->getConnection()->query($sql);
       }
    }
 
@@ -89,6 +99,10 @@
          if (!$this->conn->connect_error) {
             mysqli_close($this->conn);
          }
+      }
+
+      public function getConnection() {
+         return $this->conn;
       }
 
       public function isConError(){
@@ -129,15 +143,15 @@
          }
       }
 
-      private function OK($data) {
+      public function OK($data) {
          return $this->Result('OK', $data, 'NOERROR');
       }
 
-      private function Error($code, $error) {
+      public function Error($code, $error) {
          return $this->Result('ERROR', $code, $error);
       }
 
-      private function Result($result, $data, $error)
+      public function Result($result, $data, $error)
       {
          $arr = array('RESULT' => $result, 'DATA' => $data, 'ERROR' => $error);
          return json_encode($arr);

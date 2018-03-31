@@ -1,26 +1,29 @@
 <?php
-   include 'simbo.php';
    class UserObject extends SimboObject
    {
       public function Registration($inputParams) {
          //id, name, hkey, email
          //inputParams
-         //-email
-         //-password
-         //-fields
+         //email
+         //password
+         //fields
+         //'age': age,
+         //'weight': weight
 
          //ищем email
-         $findEmail = $this->_findRec('email='.$inputParams->email);
+         $findEmail = $this->_findRec('email=\''.$inputParams->email.'\'');
          //если есть - кидаем ошибку
          if( $findEmail->num_rows > 0 ) {
-            return $this->so->Error('UserRegistrationEmail', 'email is already exist');
+            return $this->getSimboObject()->Error('UserRegistrationEmail', 'email is already exist');
          }
          //создаем хэш
          $fullhash = $inputParams->email.$inputParams->password;
          $hash = password_hash($fullhash, PASSWORD_DEFAULT);
-         $inputParams->fields['hkey'] = $hash;
+         $hashArr = array("email" =>  $inputParams->email, "name" =>  $inputParams->name, "hkey" => $hash, "age" =>  $inputParams->age, "weight" =>  $inputParams->weight);
+         //$inputParams->fields['hkey'] = $hash;
+         //$inputParams->fields = array_merge($inputParams->fields, $hashArr);
          //создать запись
-         return $this->AddRow($inputParams->fields);
+         return $this->AddRow($hashArr);
       }
 
       public function LoginKey($key) {
@@ -28,13 +31,13 @@
          $find = $this->_findRec('hkey='.$key);
          //если не найдено - кидаем ошибку
          if( $find->num_rows < 1 ) {
-            return $this->so->Error('UserLoginKey', 'wrong login password');
+            return $this->getSimboObject()->Error('UserLoginKey', 'wrong login password');
          }
 
          //вернуть данные пользователя
          //получить id
          $row = $find->fetch_assoc();
-         return $this->so->Result('OK', array('COUNT' => $find->num_rows, 'LIST' => $row ), 'NOERROR');
+         return $this->getSimboObject()->Result('OK', array('COUNT' => $find->num_rows, 'LIST' => $row ), 'NOERROR');
          //$id = $row['id'];
          //return $object->GetData($id);
       }
@@ -69,7 +72,7 @@
             return $this->SetData($id, $params);
          }
 
-         return $this->so->Error('NOACTION', 'no action in bl');
+         return $this->getSimboObject()->Error('NOACTION', 'no action in bl');
       }
    }
 ?>
