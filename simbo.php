@@ -30,6 +30,11 @@
          return $this->so->Query($sql);
       }
 
+      public function Log($value) {
+         $sql = "INSERT INTO Log (value) VALUES ('".$value."')";
+         return $this->so->Query($sql);
+      }
+
       public function DelRow($id) {
          $sql = "DELETE FROM ".$this->tableName." WHERE id=" . $id;
          return $this->so->Query($sql);

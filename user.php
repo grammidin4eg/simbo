@@ -27,8 +27,9 @@
       }
 
       public function LoginKey($key) {
+         $this->Log($key);
          //ищем по хэшу
-         $find = $this->_findRec('hkey='.$key);
+         $find = $this->_findRec('hkey=\''.$key.'\'');
          //если не найдено - кидаем ошибку
          if( $find->num_rows < 1 ) {
             return $this->getSimboObject()->Error('UserLoginKey', 'wrong login password');
@@ -61,7 +62,7 @@
          }
 
          if( $obj->MET == 'LoginPassword' ) {
-            return $this->LoginPassword($params[0], $params[1]);
+            return $this->LoginPassword($params->login, $params->password);
          }
 
          if( $obj->MET == 'GetUserParam' ) {
