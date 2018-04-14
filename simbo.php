@@ -87,8 +87,8 @@
          return $this->GetList(('id = '.$id), 1, 0, $this->fieldList);
       }
 
-      public function _findRec($where) {
-         $columns = $this->GetFieldListStr(null);
+      public function _findRec($where, $colArray) {
+         $columns = $this->GetFieldListStr($colArray);
          $sql = "SELECT " . $columns . " FROM " . $this->tableName . " WHERE " . $where;
          return $this->so->getConnection()->query($sql);
       }

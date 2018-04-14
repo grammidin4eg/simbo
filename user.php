@@ -11,14 +11,14 @@
          //'weight': weight
 
          //ищем email
-         $findEmail = $this->_findRec('email=\''.$inputParams->email.'\'');
+         $findEmail = $this->_findRec('email=\''.$inputParams->email.'\'', null);
          //если есть - кидаем ошибку
          if( $findEmail->num_rows > 0 ) {
             return $this->getSimboObject()->Error('UserRegistrationEmail', 'email is already exist');
          }
          //создаем хэш
          $fullhash = $inputParams->email.$inputParams->password;
-         $hash = password_hash($fullhash, PASSWORD_DEFAULT);
+         $hash = md5($fullhash);
          $hashArr = array("email" =>  $inputParams->email, "name" =>  $inputParams->name, "hkey" => $hash, "age" =>  $inputParams->age, "weight" =>  $inputParams->weight);
          //$inputParams->fields['hkey'] = $hash;
          //$inputParams->fields = array_merge($inputParams->fields, $hashArr);
@@ -29,7 +29,7 @@
       public function LoginKey($key) {
          $this->Log($key);
          //ищем по хэшу
-         $find = $this->_findRec('hkey=\''.$key.'\'');
+         $find = $this->_findRec('hkey=\''.$key.'\'', array('id', 'name', 'weight', 'email', 'age'));
          //если не найдено - кидаем ошибку
          if( $find->num_rows < 1 ) {
             return $this->getSimboObject()->Error('UserLoginKey', 'wrong login password');
@@ -45,8 +45,8 @@
 
       public function LoginPassword($login, $password) {
          //создаем хэш
-         $fullhash = $inputParams->email.$inputParams->password;
-         $hash = password_hash($fullhash, PASSWORD_DEFAULT);
+         $fullhash = $login.$password;
+         $hash = md5($fullhash);
          return $this->LoginKey($hash);
       }
 
