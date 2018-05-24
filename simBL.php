@@ -15,7 +15,12 @@ if($simbo->isConError()) {
    echo $simbo->getConError();
 } else {
    $object = new SimboObject($simbo, $obj->OBJ, array('id', 'field1', 'field2', 'field3'));
-   $params = $obj->PARAMS;
+   $obj->LISTWHERE = '';
+   $obj->ADDARRAY = array('field1' => $params[0], 'field2' => $params[1], 'field3' => $params[2]);
+   $obj->SETARRAY = array('field1' => $params[0], 'field2' => $params[1]);
+   $res = $object->ConfirmStd($obj);
+
+   /*$params = $obj->PARAMS;
    $id = $obj->ID;
    if( $obj->MET == 'Add' ) {
       $res = $object->AddRow(array('field1' => $params[0], 'field2' => $params[1], 'field3' => $params[2]));
@@ -31,7 +36,8 @@ if($simbo->isConError()) {
    }
    if( $obj->MET == 'Del' ) {
       $res = $object->DelRow($id);
-   }
+   }*/
+
    echo $res;
 }
 
