@@ -92,6 +92,29 @@
          $sql = "SELECT " . $columns . " FROM " . $this->tableName . " WHERE " . $where;
          return $this->so->getConnection()->query($sql);
       }
+
+      public function ConfirmStd($obj) {
+         $params = $obj->PARAMS;
+         $id = $obj->ID;
+
+         if( $obj->MET == 'Add' ) {
+            $res = $object->AddRow($obj->ADDARRAY);
+         }
+         if( $obj->MET == 'List' ) {
+            $res = $object->GetListSimple($obj->LISTWHERE);
+         }
+         if( $obj->MET == 'Get' ) {
+            $res = $object->GetData($id);
+         }
+         if( $obj->MET == 'Set' ) {
+            $res = $object->SetData($id, $obj->SETARRAY);
+         }
+         if( $obj->MET == 'Del' ) {
+            $res = $object->DelRow($id);
+         }
+
+         return $this->getSimboObject()->Error('NOACTION', 'no action in bl');
+      }
    }
 
    class Simbo {

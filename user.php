@@ -73,7 +73,8 @@
             return $this->SetData($id, $params);
          }
 
-         return $this->getSimboObject()->Error('NOACTION', 'no action in bl');
+         return $this->ConfirmStd($obj);
+         //return $this->getSimboObject()->Error('NOACTION', 'no action in bl');
       }
    }
 ?>
