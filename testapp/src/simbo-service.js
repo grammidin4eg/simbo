@@ -1,6 +1,7 @@
 export default class SimboService {
     constructor(object) {
         this.object = object;
+        this.lastResult = null;
     }
 
     exec(_method, _params, _navigation) {
@@ -24,17 +25,45 @@ export default class SimboService {
             // send the collected data as JSON
             xhr.send(JSON.stringify(data));
 
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = () => {
                 if (xhr.readyState !== xhr.DONE) return;
 
                 console.log('[onreadystatechange]', 'status', xhr.status, 'statusText', xhr.statusText, 'responseText', xhr.responseText);
                 if (xhr.status !== 200) {
-                    //ошибка
-                    console.log('[ERROR]', xhr.statusText)
+                    //ошибка при получении данных
                     reject(new Error(xhr.statusText));
                 } else {
-                    console.log('[RESULT]', JSON.parse(xhr.responseText));
-                    resolve(JSON.parse(xhr.responseText));
+                    //ошибка разбора JSON
+                    try {
+                        this.lastResult = JSON.parse(xhr.responseText);
+                    } catch (e) {
+                        console.error(e);
+                        reject(new Error(e));
+                        return;
+                    }
+                    //проверка на ошибку от БЛ
+                    if (this.lastResult.RESULT !== 'OK') {
+                        reject(new Error(this.lastResult.ERROR));
+                        return;
+                    }
+
+                    //если это RecordSet - объединим DATA и COLUMNS
+                    if (this.lastResult.TYPE === 'RECORDSET') {
+                        const columns = this.lastResult.COLUMNS;
+                        const columnsCount = columns.length;
+                        this.lastResult.DATA = this.lastResult.DATA.map(curItem => {
+                            let newItem = {};
+                            for(let i = 0; i < columnsCount; i++ ) {
+                                //todo Формат значений
+                                newItem[columns[i]] = curItem[i];
+                            }
+                            return newItem;
+                        });
+                    }
+
+                    //все в порядке, отдаем данные
+                    console.log('[RESULT]', this.lastResult);
+                    resolve(this.lastResult.DATA, this.lastResult);
                 }
 
             }
