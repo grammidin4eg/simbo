@@ -11,11 +11,20 @@
         const RECORDSET = 'RECORDSET';
     }
 
+    class FORMAT {
+        const INT = 'INT';
+        const STRING = 'STRING';
+        const BOOLEAN = 'BOOLEAN';
+        const FLOAT = 'FLOAT';
+        const VOID = 'VOID';
+    }
+
     class SimboObject {
 
         protected $inObj;
         private $result;
         private $conn;
+        protected $fieldList;
 
         function __construct($inObj, $dbParam) {
             $this->inObj = $inObj;
@@ -32,17 +41,17 @@
             return $this->conn->connect_error;
         }
 
-        private function createResultObject($result, $type, $data, $error, $count, $columns) {
-            $this->result = array('RESULT' => $result, 'TYPE' => $type, 'DATA' => $data, 'ERROR' => $error, 'COUNT' => $count, 'COLUMNS' => $columns);
+        private function createResultObject($result, $type, $data, $error, $count, $columns, $format) {
+            $this->result = array('RESULT' => $result, 'TYPE' => $type, 'DATA' => $data, 'ERROR' => $error, 'COUNT' => $count, 'COLUMNS' => $columns, 'FORMAT' => $format);
             return $this->result;
         }
 
-        protected function OK($data, $restype, $count, $columns) {
-            return $this->createResultObject(RESULT::OK, $restype, $data, '', $count, $columns);
+        protected function OK($data, $restype=RESTYPE::SCALAR, $count=0, $columns=array(), $format=array()) {
+            return $this->createResultObject(RESULT::OK, $restype, $data, '', $count, $columns, $format);
         }
 
         protected function Error() {
-            return $this->createResultObject(RESULT::ERROR, RESTYPE::SCALAR, $this->conn->errno, $this->conn->error, 1, array());
+            return $this->createResultObject(RESULT::ERROR, RESTYPE::SCALAR, $this->conn->errno, $this->conn->error, 1, array(), array());
         }
 
         protected function getConError() {
@@ -59,26 +68,31 @@
                     $data = array('INSERT_ID' => $this->conn->insert_id);
                     $type = RESTYPE::RECORD;
                 }
-                return $this->OK($data, $type, 1, array());
+                return $this->OK($data, $type, 1);
             } else {
                 return $this->Error();
             }
         }
 
-        protected function GetFieldListStr($colArray) {
+        protected function GetFieldListStr($colArray, $useQuotes=false) {
             $columns = '';
             $first = '';
+            $quotes = '';
+
+            if ($useQuotes) {
+                $quotes = "'";
+            }
             if(!$colArray) {
                 $colArray = $this->fieldList;
             }
             foreach ($colArray as $value) {
-                $columns = $columns . $first . $value;
+                $columns = $columns . $first . $quotes . $value . $quotes;
                 $first = ',';
             }
             return $columns;
         }
 
-        protected function QueryGet($sqlText, $columns) {
+        protected function QueryGet($sqlText, $columns, $format) {
             if ($this->isConError()) {
                 return $this->getConError();
             }
@@ -92,12 +106,28 @@
                     }
                     array_push($dataArr, $dataRowArr);
                 }
-                return $this->OK($dataArr, RESTYPE::RECORDSET, $result->num_rows, $columns);
+                return $this->OK($dataArr, RESTYPE::RECORDSET, $result->num_rows, $columns, $format);
             } else if ($this->conn->errno) {
                 return $this->Error();
             } else {
                 return $this->OK(array(), RESTYPE::RECORDSET, 0, $columns);
             }
+        }
+
+        protected function getAddRowSql($columns, $values) {
+            return "INSERT INTO ".$this->getObjName()." (".$this->GetFieldListStr($columns).") VALUES (".$this->GetFieldListStr($values, true).")";
+        }
+
+        public function getParams() {
+            return $this->inObj->PARAMS;
+        }
+
+        public function getNavigation() {
+            return $this->inObj->NAVIGATION;
+        }
+
+        public function getObjName() {
+            return $this->inObj->OBJECT;
         }
 
         public function getResult() {

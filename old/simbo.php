@@ -1,5 +1,5 @@
 <?php
-   class SimboObject {
+   class SimboObjectOld {
 
       private $so;
       private $tableName;

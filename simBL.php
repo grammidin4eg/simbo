@@ -17,7 +17,7 @@ $dbParam = array('servername' => $servername, 'username' => $username, 'password
 $fileName = './'.$inParam->OBJECT.'/'.$inParam->METHOD.'.php';
 include $fileName;
 
-$testObj = new TodoList($inParam, $dbParam);
+$testObj = new SimboExecuter($inParam, $dbParam);
 $testObj->executeMethod();
 
 echo $testObj->getResult();
