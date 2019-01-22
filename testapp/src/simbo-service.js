@@ -47,7 +47,7 @@ export default class SimboService {
                         return;
                     }
 
-                    //если это RecordSet - объединим DATA и COLUMNS
+                    //если это RecordSet - объединим DATA, COLUMNS и FORMAT
                     if (this.lastResult.TYPE === 'RECORDSET') {
                         const columns = this.lastResult.COLUMNS;
                         const columnsCount = columns.length;
@@ -55,7 +55,7 @@ export default class SimboService {
                             let newItem = {};
                             for(let i = 0; i < columnsCount; i++ ) {
                                 //todo Формат значений
-                                newItem[columns[i]] = curItem[i];
+                                newItem[columns[i]] = this.getFormatField(this.lastResult.FORMAT[i], curItem[i]);
                             }
                             return newItem;
                         });
@@ -68,5 +68,20 @@ export default class SimboService {
 
             }
         });
+    }
+
+    getFormatField(format, value) {
+        switch (format) {
+            case 'INT':
+                return parseInt(value, 10);
+            case 'BOOLEAN':
+                return ((value.toUpperCase() === 'TRUE') || (value === '1') );
+            case 'FLOAT':
+                return parseFloat(value);
+            case 'STRING':
+            case 'VOID':
+            default:
+                return value;
+        }
     }
 }

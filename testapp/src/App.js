@@ -8,8 +8,15 @@ class App extends Component {
         super(props);
         this.testList = new TestList();
         this.state = {
-            list: []
+            list: [],
+            addField: ''
         }
+    }
+
+    changeAddField(e) {
+        this.setState({
+            addField: e.target.value
+        });
     }
 
     loadList() {
@@ -29,20 +36,42 @@ class App extends Component {
         this.testList.testError().then(this.testList.consoleResult, this.testList.consoleError);
     }
 
-    addNewItem() {
+    addNewItem(event) {
         console.log('add new item');
-        const newStr = 'new test string';
+        event.preventDefault();
+        const newStr = this.state.addField;
+        if (!newStr) {
+            return;
+        }
         this.testList.addItem(newStr).then(res => {
-            if (res) {
-                this.setState((state) => {
-                    //todo возвращать новую запись из сервиса
-                    const newList =[...state.list, {id: res, text: newStr, done: false, important: false}];
-                    return {
-                        list: newList
-                    }
-                });
-            }
+            this.loadList();
+            this.setState({
+                addField: ''
+            });
+            // if (res) {
+            //     this.setState((state) => {
+            //         const newList =[...state.list, {id: res, text: newStr, done: false, important: false}];
+            //         return {
+            //             list: newList
+            //         }
+            //     });
+            // }
         }, this.testList.consoleError);
+    }
+
+    deleteItem(id) {
+        console.log('deleteItem', id);
+        this.testList.deleteItem(id).then(() => this.loadList());
+    }
+
+    setDoneItem(id) {
+        console.log('deleteItem', id);
+        this.testList.setDoneItem(id).then(() => this.loadList());
+    }
+
+    setImportantItem(id) {
+        console.log('setImportantItem', id);
+        this.testList.setImportantItem(id).then(() => this.loadList());
     }
 
     //todo Формат, разбор Record (данные о пользователе), Список для пользователя, регистрация, вход, имя,
@@ -54,20 +83,46 @@ class App extends Component {
 
     render() {
         const list = this.state.list.map(item => {
-            return (<div className="App__list__item" key={item.id}>{item.text}</div>);
+            let modClass = '';
+            if (item.done) {
+                modClass += ' is-done';
+            }
+
+            if (item.important) {
+                modClass += ' is-important';
+            }
+
+            return (
+                <tr className="App__list__item" key={item.id}>
+                    <td className={'App__list__item__text' + modClass}>{item.text}</td>
+                    <td>
+                        <button className="App__list__item__done btn btn-info btn-xs fa fa-check" onClick={this.setDoneItem.bind(this, item.id)}></button>
+                        <button className="App__list__item__important btn btn-info btn-xs fa fa-exclamation-circle" onClick={this.setImportantItem.bind(this, item.id)}></button>
+                        <button className="App__list__item__delete btn btn-danger btn-xs fa fa-trash-o" onClick={this.deleteItem.bind(this, item.id)}></button>
+                    </td>
+                </tr>
+            );
         });
         return (
-            <div className="App">
-                <div className="App__buttons">
-                    <button onClick={this.loadList.bind(this)}>LOAD LIST</button>
-                    <button onClick={this.errorTest.bind(this)}>ERROR TEST</button>
-                </div>
-                <div className="App__list">
-                    {list}
-                </div>
-                <div className="App__bottom-panel">
-                    <input/>
-                    <button onClick={this.addNewItem.bind(this)}>ADD</button>
+            <div className="App container-fluid">
+                <div className="row">
+                    <div className="col-md-2"></div>
+                    <div className="col-md-8">
+                        <div className="App__buttons container">
+                            <button onClick={this.loadList.bind(this)} className="btn btn-info">LOAD LIST</button>
+                            <button onClick={this.errorTest.bind(this)} className="btn btn-info">ERROR TEST</button>
+                        </div>
+                        <div className="App__list">
+                            <table><tbody>
+                            {list}
+                            </tbody></table>
+                        </div>
+                        <form className="App__bottom-panel" onSubmit={this.addNewItem.bind(this)}>
+                            <input type="text" onChange={this.changeAddField.bind(this)} value={this.state.addField}/>
+                            <button className="btn btn-primary">ADD</button>
+                        </form>
+                    </div>
+                    <div className="col-md-2"></div>
                 </div>
             </div>
         );

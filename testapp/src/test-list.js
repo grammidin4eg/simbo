@@ -26,8 +26,16 @@ export default class TestList extends SimboService {
         return this.exec('add', {value: newItem});
     }
 
-    removeItem(id) {
+    deleteItem(id) {
+        return this.exec('delete', {id: id});
+    }
 
+    setDoneItem(id) {
+        return this.exec('done', {id: id});
+    }
+
+    setImportantItem(id) {
+        return this.exec('important', {id: id});
     }
 
     getUsetInfo() {
