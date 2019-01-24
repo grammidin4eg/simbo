@@ -22,12 +22,14 @@
     class SimboObject {
 
         protected $inObj;
-        private $result;
+        protected $result;
         private $conn;
+        private $wasError;
         protected $fieldList;
 
         function __construct($inObj, $dbParam) {
             $this->inObj = $inObj;
+            $this->wasError = false;
             $this->conn = new mysqli($dbParam['servername'], $dbParam['username'], $dbParam['password'], $dbParam['dbname']);
         }
 
@@ -51,7 +53,24 @@
         }
 
         protected function Error() {
+            $this->wasError = true;
             return $this->createResultObject(RESULT::ERROR, RESTYPE::SCALAR, $this->conn->errno, $this->conn->error, 1, array(), array());
+        }
+
+        protected function isError() {
+            return ($this->isConError() || $this->wasError);
+        }
+
+        protected function getResData() {
+            return $this->result['DATA'];
+        }
+
+        protected function getResDataRow() {
+            return $this->getResData()[0];
+        }
+
+        protected function getSqlBool($value) {
+            return ($value == '1');
         }
 
         protected function getConError() {
@@ -116,6 +135,25 @@
 
         protected function getAddRowSql($columns, $values) {
             return "INSERT INTO ".$this->getObjName()." (".$this->GetFieldListStr($columns).") VALUES (".$this->GetFieldListStr($values, true).")";
+        }
+
+        protected function getDelRowSql($id) {
+            return "DELETE FROM ".$this->getObjName()." WHERE id=" . $id;
+        }
+
+        protected function getUpdateRowSql($id, $setArray) {
+            $columns = '';
+            $first = '';
+            foreach ($setArray as $key => $value) {
+                $columns = $columns . $first . $key . "='" . $value . "'";
+                $first = ', ';
+            }
+            return "UPDATE ".$this->getObjName()." SET ".$columns." WHERE id=".$id;
+        }
+
+        protected function getRow($columns, $where) {
+            $sqlText = "SELECT " . $this->GetFieldListStr($columns) . " FROM " . $this->getObjName() . " WHERE " . $where;
+            return $this->QueryGet($sqlText, $columns, array());
         }
 
         public function getParams() {
