@@ -37,12 +37,4 @@ export default class TestList extends SimboService {
     setImportantItem(id) {
         return this.exec('important', {id: id});
     }
-
-    getUsetInfo() {
-
-    }
-
-    setUserInfo() {
-
-    }
 }

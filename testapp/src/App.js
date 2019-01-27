@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import './App.css';
 import TestList from './test-list';
+import UserService from './user-service';
 
 class App extends Component {
 
     constructor(props) {
         super(props);
         this.testList = new TestList();
+        this.userService = new UserService();
         this.state = {
             list: [],
             addField: ''
@@ -74,6 +76,16 @@ class App extends Component {
         this.testList.setImportantItem(id).then(() => this.loadList());
     }
 
+    userRegister() {
+        console.log('userRegister');
+        this.userService.register().then(this.testList.consoleResult, this.testList.consoleError);
+    }
+
+    userLogin() {
+        console.log('userLogin');
+        this.userService.login().then(this.testList.consoleResult, this.testList.consoleError);
+    }
+
     //todo Формат, разбор Record (данные о пользователе), Список для пользователя, регистрация, вход, имя,
     //проверка скаляра, изменение личных данных пользователя
     //список, добавление, изменение, удаление
@@ -121,6 +133,10 @@ class App extends Component {
                             <input type="text" onChange={this.changeAddField.bind(this)} value={this.state.addField}/>
                             <button className="btn btn-primary">ADD</button>
                         </form>
+                        <div className="App__user-buttons container">
+                            <button onClick={this.userRegister.bind(this)} className="btn btn-info">USER REGISTER</button>
+                            <button onClick={this.userLogin.bind(this)} className="btn btn-info">USER LOGIN</button>
+                        </div>
                     </div>
                     <div className="col-md-2"></div>
                 </div>

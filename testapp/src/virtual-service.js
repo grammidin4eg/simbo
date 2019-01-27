@@ -49,8 +49,14 @@ export default class SimboServiceVirtual {
                 });
                 data = 'OK';
                 break;
+            case 'register':
+                data = {name: 'UserName', roleName: 'user', roleAdmin: false};
+                break;
+            case 'login':
+                data = {name: 'UserName', roleName: 'user', roleAdmin: false};
+                break;
             default:
-                data = null;
+                data = 'OK';
                 break;
         }
         return new Promise((resolve, reject) => {

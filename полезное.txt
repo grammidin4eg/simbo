@@ -1,0 +1,4 @@
+password_hash
+http://php.net/manual/ru/function.password-hash.php
+
+password_verify
