@@ -22,6 +22,7 @@
     class SimboObject {
 
         protected $inObj;
+        protected $dbParam;
         protected $result;
         private $conn;
         private $wasError;
@@ -30,6 +31,7 @@
         function __construct($inObj, $dbParam) {
             $this->inObj = $inObj;
             $this->wasError = false;
+            $this->dbParam = $dbParam;
             $this->conn = new mysqli($dbParam['servername'], $dbParam['username'], $dbParam['password'], $dbParam['dbname']);
         }
 
@@ -67,6 +69,10 @@
 
         protected function getResDataRow() {
             return $this->getResData()[0];
+        }
+
+        protected function getResCount() {
+            return $this->result['COUNT'];
         }
 
         protected function getSqlBool($value) {
@@ -170,6 +176,30 @@
 
         public function getResult() {
             return json_encode($this->result);
+        }
+
+        public function getErrorResult($errorid, $text) {
+            $this->wasError = true;
+            $this->createResultObject(RESULT::ERROR, RESTYPE::SCALAR, $errorid, $text, 1, array(), array());
+            return $this->getResult();
+        }
+
+        public function Log($value) {
+            $sql = "INSERT INTO Log (value) VALUES ('".$value."')";
+            return $this->Query($sql);
+        }
+
+        public function LogJSON($value) {
+            return $this->Log(json_encode($value));
+        }
+
+        public function getResInsertId() {
+            $rec = $this->getResData();
+            return $rec['INSERT_ID'];
+        }
+
+        public function textQuote($text) {
+            return "'".$text."'";
         }
     }
 ?>

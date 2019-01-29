@@ -18,9 +18,7 @@ $fileName = './'.$inParam->OBJECT.'/'.$inParam->METHOD.'.php';
 include $fileName;
 
 $testObj = new SimboExecuter($inParam, $dbParam);
-$testObj->executeMethod();
-
-echo $testObj->getResult();
+echo $testObj->executeMethod();
 //echo json_encode($obj);
 
 ?>
